@@ -37,7 +37,7 @@ public:
 	uint16_t getY();
 	void nextFrame();
 	/**
-	 * *WARNING* is blocking
+	 * *WARNING* blocks thread
 	 */
 	void continous(uint8_t fps, uint16_t duration);
 };

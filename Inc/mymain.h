@@ -15,10 +15,15 @@
 
 #include "main.h"
 #include "stm32f1xx_hal.h"
+#include "math.h"
 
 #include "Display/SSD1306v2.h"
 #include "Display/fonts.h"
 #include "Display/Sprite.h"
 #include "Display/AnimationManager.h"
+#include "Sensors/Sensor.h"
+
+SSD1306 *display;
+MAX6675 *sensor;
 
 #endif /* MYMAIN_H_ */

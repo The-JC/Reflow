@@ -13,11 +13,10 @@
 #include "mymain.h"
 
 extern I2C_HandleTypeDef hi2c1;
+extern SPI_HandleTypeDef hspi2;
 
 // Private function prototypes
 void boot(void);
-
-SSD1306 *display;
 
 
 int main(void) {
@@ -47,6 +46,33 @@ void boot(void) {
 	display->gotoXY(0, 50);
 	display->putS("Reflow Oven v.0.1", &Font_7x10, WHITE, HORIZONTAL_CENTER);
 	display->updateScreen();
-	HAL_Delay(2000);
+
+	// Init Sensor
+	sensor = new MAX6675(&hspi2, CS_GPIO_Port, CS_Pin, CS2_GPIO_Port, CS2_Pin);
+
+	sensor->readTemprature();
+
+	HAL_Delay(100);
+
+	AnimationManager animation(display, &heatUp, 56, 22);
+
+	//animation.continous(4, 10);
+	display->gotoXY(0, 50);
+	char buf[32];
+	while(1) {
+		display->fill(BLACK);
+		animation.nextFrame();
+
+		float tmpVal = (sensor->getTemprature1() < 0) ? -sensor->getTemprature1() : sensor->getTemprature1();
+		int tmpInt1 = tmpVal;
+		float tmpFrac = tmpVal - tmpInt1;
+		int tmpInt2 = trunc(tmpFrac * 10000);
+
+		sprintf(buf, "%d.%02d°C", tmpInt1, tmpInt2);
+		display->putS(buf, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+		display->updateScreen();
+		sensor->readTemprature();
+		HAL_Delay(400);
+	}
 }
 

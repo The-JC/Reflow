@@ -54,22 +54,30 @@ void boot(void) {
 
 	HAL_Delay(100);
 
-	AnimationManager animation(display, &heatUp, 56, 22);
+	AnimationManager animation(display, &heatUp, 56, 16);
 
 	//animation.continous(4, 10);
 	display->gotoXY(0, 50);
-	char buf[32];
+	char buf[16];
 	while(1) {
 		display->fill(BLACK);
 		animation.nextFrame();
 
-		float tmpVal = (sensor->getTemprature1() < 0) ? -sensor->getTemprature1() : sensor->getTemprature1();
-		int tmpInt1 = tmpVal;
-		float tmpFrac = tmpVal - tmpInt1;
-		int tmpInt2 = trunc(tmpFrac * 10000);
+		int tmpInt1 = sensor->getTemprature1()/4;
+		float tmpFrac = sensor->getTemprature1()-(tmpInt1*4);
+		int tmpInt2 = tmpFrac*100/4;
 
+		display->gotoXY(0, 43);
 		sprintf(buf, "%d.%02d°C", tmpInt1, tmpInt2);
 		display->putS(buf, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+
+		tmpInt1 = sensor->getTemprature2();
+		tmpFrac = sensor->getTemprature2()-tmpInt1;
+		tmpInt2 = trunc(tmpFrac*100);
+		display->gotoXY(0, 53);
+		sprintf(buf, "%d.%02d°C", tmpInt1, tmpInt2);
+		display->putS(buf, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+
 		display->updateScreen();
 		sensor->readTemprature();
 		HAL_Delay(400);

@@ -247,7 +247,12 @@ char SSD1306::putC(char ch, FontDef_t* font, SSD1306_COLOR_t color) {
 
 	/* Go through font */
 	for(y = 0; y < font->FontHeight; y++) {
-		b = font->data[(ch - 32) * font->FontHeight + y];
+		if(ch==176)
+			b = font->data[95*font->FontHeight + y];
+		else if(ch==194)
+			return ch;
+		else
+			b = font->data[(ch - 32) * font->FontHeight + y];
 		for(x = 0; x < font->FontWidth; x++) {
 			if((b << x) & 0x8000)
 				drawPixel(currentX + x, currentY + y, (SSD1306_COLOR_t) color);

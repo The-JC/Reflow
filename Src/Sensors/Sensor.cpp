@@ -57,7 +57,7 @@ void MAX6675::__handleSPI_RxCallback() {
 			* Third last bit is 1 when no sensor is connected
 			* Shift 3 right and mask first 4 bits to read value
 			*/
-			temprature1 = (((*rxBuffer) >> 3) & 0b0000111111111111) /4;
+			temprature1 = ((((*rxBuffer) >> 3) & 0b0000111111111111));
 		}
 	} else if(currentSensor==2) {
 		// Check if third last bit is not zero
@@ -65,7 +65,7 @@ void MAX6675::__handleSPI_RxCallback() {
 			temprature1 = -1;
 			return;
 		}
-		temprature2 = (((*rxBuffer) >> 3) & 0b0000111111111111) /4;
+		temprature2 = (((*rxBuffer) >> 3) & 0b0000111111111111) /4.0;
 		currentSensor = 0;
 		return;
 	}

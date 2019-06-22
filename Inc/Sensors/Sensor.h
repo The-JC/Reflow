@@ -39,7 +39,7 @@ public:
 	void readTemprature(void);
 	float getTemprature1(void);
 	float getTemprature2(void);
-	void __handleSPI_RxCallback(void);
+	void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi);
 };
 
 #endif /* SENSOR_H_ */

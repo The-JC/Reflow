@@ -37,16 +37,18 @@ float MAX6675::getTemprature2() {
 }
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
-	sensor->__handleSPI_RxCallback();
+	sensor->__handleSPI_RxCallback(hspi);
+	HAL_SPI_IRQHandler(hspi);
 }
 
-void MAX6675::__handleSPI_RxCallback() {
+void MAX6675::__handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 	if(currentSensor<1 || currentSensor > 2) {
 		Error_Handler();
 		return;
 	}
 
 	if(currentSensor==1) {
+		HAL_GPIO_WritePin(CS1_PORT, CS1Pin, GPIO_PIN_SET);
 		// Check if third last bit is not zero
 		if((((*rxBuffer) >> 2) & 0b0000000000000001) == 1) {
 			temprature1 = -1;
@@ -58,48 +60,62 @@ void MAX6675::__handleSPI_RxCallback() {
 			* Shift 3 right and mask first 4 bits to read value
 			*/
 			temprature1 = ((((*rxBuffer) >> 3) & 0b0000111111111111));
+			*rxBuffer = 0x0;
 		}
 	} else if(currentSensor==2) {
+		currentSensor = 0;
 		// Check if third last bit is not zero
 		if((((*rxBuffer) >> 2) & 0b0000000000000001) == 1) {
 			temprature1 = -1;
 			return;
 		}
 		temprature2 = (((*rxBuffer) >> 3) & 0b0000111111111111) /4.0;
-		currentSensor = 0;
+		*rxBuffer = 0x0;
 		return;
 	}
-
-	currentSensor = 2; // Set sensor to read to second
-	// SET CS low to start data transmission from MAX6675 Sensor
-	HAL_GPIO_WritePin(this->CS2_PORT, this->CS2Pin, GPIO_PIN_RESET);
-
-	if(HAL_SPI_Receive_IT(hspi, (uint8_t*)this->rxBuffer, 2) != HAL_OK) {
-		Error_Handler();
-		return;
-	}
-
-	// Not working due to interrupt stopping SysTick from incrementing
-	// TODO Increase SysTick Priority
-	// HAL_Delay(1);
-	HAL_GPIO_WritePin(this->CS2_PORT, this->CS2Pin, GPIO_PIN_SET);
+//
+//	HAL_Delay(1);
+//	currentSensor = 2; // Set sensor to read to second
+//	// SET CS low to start data transmission from MAX6675 Sensor
+//	HAL_GPIO_WritePin(this->CS2_PORT, this->CS2Pin, GPIO_PIN_RESET);
+//
+//	if(HAL_SPI_Receive_IT(hspi, (uint8_t*)this->rxBuffer, 2) != HAL_OK) {
+//		Error_Handler();
+//		return;
+//	}
+//
+//	// Not working due to interrupt stopping SysTick from incrementing
+//	// TODO Increase SysTick Priority
+//	HAL_Delay(1);
+//	HAL_GPIO_WritePin(this->CS2_PORT, this->CS2Pin, GPIO_PIN_SET);
 	return;
 }
 
 void MAX6675::readTemprature() {
 	// Check if sensor reading is in progress
-	if(currentSensor!=0) {
+	if(currentSensor==0) {
+		currentSensor = 1; // Set sensor to read to first one
+		// SET CS low to start data transmission from MAX6675 Sensor
+		HAL_GPIO_WritePin(this->CS1_PORT, this->CS1Pin, GPIO_PIN_RESET);
+
+		if(HAL_SPI_Receive_IT(hspi, (uint8_t*)this->rxBuffer, 2) != HAL_OK) {
+			Error_Handler();
+		}
+
+		HAL_Delay(1);
+		HAL_GPIO_WritePin(CS1_PORT, CS1Pin, GPIO_PIN_SET);
 		return;
-	}
-	currentSensor = 1; // Set sensor to read to first one
-	// SET CS low to start data transmission from MAX6675 Sensor
-	HAL_GPIO_WritePin(this->CS1_PORT, this->CS1Pin, GPIO_PIN_RESET);
+	} else if(currentSensor==1) {
+			currentSensor = 2; // Set sensor to read to first one
+			// SET CS low to start data transmission from MAX6675 Sensor
+			HAL_GPIO_WritePin(this->CS2_PORT, this->CS2Pin, GPIO_PIN_RESET);
 
-	if(HAL_SPI_Receive_IT(hspi, (uint8_t*)this->rxBuffer, 2) != HAL_OK) {
-		Error_Handler();
-	}
+			if(HAL_SPI_Receive_IT(hspi, (uint8_t*)this->rxBuffer, 2) != HAL_OK) {
+				Error_Handler();
+			}
 
-	HAL_Delay(1);
-	HAL_GPIO_WritePin(CS1_PORT, CS1Pin, GPIO_PIN_SET);
-	return;
+			HAL_Delay(1);
+			HAL_GPIO_WritePin(CS2_PORT, CS2Pin, GPIO_PIN_SET);
+			return;
+		}
 }

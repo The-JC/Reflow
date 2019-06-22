@@ -80,7 +80,7 @@ void boot(void) {
 
 		display->updateScreen();
 		sensor->readTemprature();
-		HAL_Delay(400);
+		HAL_Delay(500);
 	}
 }
 

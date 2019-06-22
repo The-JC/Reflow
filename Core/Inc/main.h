@@ -51,11 +51,10 @@ extern "C" {
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
-void InitSystem(void);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void InitSystem(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -74,10 +73,10 @@ void Error_Handler(void);
 #define RIGHT_GPIO_Port GPIOB
 #define LEFT_Pin GPIO_PIN_11
 #define LEFT_GPIO_Port GPIOB
-#define CS_Pin GPIO_PIN_12
-#define CS_GPIO_Port GPIOB
-#define CS2_Pin GPIO_PIN_15
+#define CS2_Pin GPIO_PIN_12
 #define CS2_GPIO_Port GPIOB
+#define CS_Pin GPIO_PIN_15
+#define CS_GPIO_Port GPIOB
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14

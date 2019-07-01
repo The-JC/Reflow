@@ -212,6 +212,23 @@ void EXTI9_5_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+	if(LL_TIM_IsActiveFlag_CC1(TIM3) == 1) {
+		LL_TIM_ClearFlag_CC1(TIM3);
+		TimerCaptureCompare_Callback();
+	}
+
+  /* USER CODE END TIM3_IRQn 0 */
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+
+  /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
   * @brief This function handles SPI2 global interrupt.
   */
 void SPI2_IRQHandler(void)

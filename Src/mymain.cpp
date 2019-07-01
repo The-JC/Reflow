@@ -27,6 +27,15 @@ int main(void) {
 	InitSystem(); // Configures the system clock and initialzes all configured peripherals.
 
 	boot();
+
+	// CONTROLL LOOP
+	while(1) {
+
+	}
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
+	LL_TIM_EnableCounter(TIM3);
 }
 
 void boot(void) {
@@ -55,6 +64,8 @@ void boot(void) {
 	HAL_Delay(100);
 
 	AnimationManager animation(display, &heatUp, 56, 16);
+
+	LL_TIM_OC_SetCompareCH1(TIM3, 29999);
 
 	//animation.continous(4, 10);
 	display->gotoXY(0, 50);

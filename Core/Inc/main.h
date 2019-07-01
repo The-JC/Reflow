@@ -29,6 +29,17 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#include "stm32f1xx_ll_tim.h"
+#include "stm32f1xx_ll_bus.h"
+#include "stm32f1xx_ll_cortex.h"
+#include "stm32f1xx_ll_rcc.h"
+#include "stm32f1xx_ll_system.h"
+#include "stm32f1xx_ll_utils.h"
+#include "stm32f1xx_ll_pwr.h"
+#include "stm32f1xx_ll_gpio.h"
+#include "stm32f1xx_ll_dma.h"
+
+#include "stm32f1xx_ll_exti.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -55,6 +66,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void InitSystem(void);
+void TimerCaptureCompare_Callback(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -63,6 +75,8 @@ void InitSystem(void);
 #define ZEROX_Pin GPIO_PIN_7
 #define ZEROX_GPIO_Port GPIOA
 #define ZEROX_EXTI_IRQn EXTI9_5_IRQn
+#define LD_Power_Pin GPIO_PIN_4
+#define LD_Power_GPIO_Port GPIOC
 #define UP_Pin GPIO_PIN_0
 #define UP_GPIO_Port GPIOB
 #define DOWN_Pin GPIO_PIN_1

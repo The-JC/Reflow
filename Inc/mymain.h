@@ -26,4 +26,5 @@
 SSD1306 *display;
 MAX6675 *sensor;
 
+
 #endif /* MYMAIN_H_ */

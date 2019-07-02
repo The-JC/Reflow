@@ -61,11 +61,23 @@ void boot(void) {
 
 	sensor->readTemprature();
 
-	HAL_Delay(100);
+	HAL_Delay(500);
 
 	AnimationManager animation(display, &heatUp, 56, 16);
 
-	LL_TIM_OC_SetCompareCH1(TIM3, 29999);
+	/* Enable channel 1 */
+	LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH1);
+
+	/* Enable TIM3 outputs */
+	LL_TIM_EnableAllOutputs(TIM3);
+
+	/* Enable auto-reload register preload */
+	LL_TIM_EnableARRPreload(TIM3);
+
+	/* Force update generation */
+	LL_TIM_GenerateEvent_UPDATE(TIM3);
+
+	LL_TIM_OC_SetCompareCH1(TIM3, 45000);
 
 	//animation.continous(4, 10);
 	display->gotoXY(0, 50);

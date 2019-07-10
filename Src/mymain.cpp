@@ -40,7 +40,6 @@ int main(void) {
 	// CONTROLL LOOP
 	while(1) {
 		updateTemprature();
-		sprintf(buf, "%d", sensor->getTemprature1()/4);
 		printf(buf);
 		setTemp(sensor->getTemprature1());
 		controll();
@@ -73,13 +72,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
 }
 
 void controll(void) {
-	uint16_t e = w-sensor->getTemprature1()/4;
 
-	uint16_t m = e*kp;
-	if(m > 100) m =100;
-	power=m;
-
-	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000*power/100);
+	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000* controller->control(sensor->getTemprature1()/4)/100);
 }
 
 void updateTemprature(void) {
@@ -106,7 +100,7 @@ void updateDisplay(void) {
 	display->putS(buf, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 
 	display->gotoXY(0, 0);
-	sprintf(buf, "%i°C %i%% %ims", w, power, getTimeDelay());
+	sprintf(buf, "%i°C %i%% %ums", w, power, getTimeDelay());
 	display->putS(buf, &Font_7x10, WHITE, ABSOLUT);
 
 	display->updateScreen();
@@ -152,6 +146,8 @@ void boot(void) {
 	LL_TIM_GenerateEvent_UPDATE(TIM3);
 
 	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000*power/100);
+
+	controller = new PIDController(w, kp, 0, 0);
 
 	//animation.continous(4, 10);
 	display->gotoXY(0, 50);

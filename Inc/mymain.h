@@ -22,10 +22,12 @@
 #include "Display/Sprite.h"
 #include "Display/AnimationManager.h"
 #include "Sensors/Sensor.h"
+#include "PIDController.h"
 
 SSD1306 *display;
 MAX6675 *sensor;
 AnimationManager *animation;
+PIDController *controller;
 
 
 #endif /* MYMAIN_H_ */

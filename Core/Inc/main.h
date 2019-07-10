@@ -67,6 +67,9 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 void InitSystem(void);
 void TimerCaptureCompare_Callback(void);
+uint32_t getTimeDelay(void);
+void setTime(uint32_t t);
+void setTemp(uint16_t t);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -77,16 +80,19 @@ void TimerCaptureCompare_Callback(void);
 #define ZEROX_EXTI_IRQn EXTI9_5_IRQn
 #define LD_Power_Pin GPIO_PIN_4
 #define LD_Power_GPIO_Port GPIOC
-#define UP_Pin GPIO_PIN_0
-#define UP_GPIO_Port GPIOB
-#define DOWN_Pin GPIO_PIN_1
-#define DOWN_GPIO_Port GPIOB
-#define SELECT_Pin GPIO_PIN_2
-#define SELECT_GPIO_Port GPIOB
-#define RIGHT_Pin GPIO_PIN_10
-#define RIGHT_GPIO_Port GPIOB
-#define LEFT_Pin GPIO_PIN_11
+#define LEFT_Pin GPIO_PIN_0
 #define LEFT_GPIO_Port GPIOB
+#define RIGHT_Pin GPIO_PIN_1
+#define RIGHT_GPIO_Port GPIOB
+#define DOWN_Pin GPIO_PIN_2
+#define DOWN_GPIO_Port GPIOB
+#define DOWN_EXTI_IRQn EXTI2_IRQn
+#define SELECT_Pin GPIO_PIN_10
+#define SELECT_GPIO_Port GPIOB
+#define SELECT_EXTI_IRQn EXTI15_10_IRQn
+#define UP_Pin GPIO_PIN_11
+#define UP_GPIO_Port GPIOB
+#define UP_EXTI_IRQn EXTI15_10_IRQn
 #define CS2_Pin GPIO_PIN_12
 #define CS2_GPIO_Port GPIOB
 #define CS_Pin GPIO_PIN_15
@@ -95,8 +101,6 @@ void TimerCaptureCompare_Callback(void);
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-#define SWO_Pin GPIO_PIN_3
-#define SWO_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -48,6 +48,9 @@ SPI_HandleTypeDef hspi2;
 
 /* USER CODE BEGIN PV */
 
+uint32_t starttime;
+uint32_t delaytime;
+uint16_t temp;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,6 +77,9 @@ void InitSystem(void) {
 	MX_I2C1_Init();
 	MX_SPI2_Init();
 	MX_TIM3_Init();
+
+	starttime=0;
+	delaytime=0;
 }
 
 /* USER CODE END 0 */
@@ -100,7 +106,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL8;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -114,10 +120,13 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
+  /** Enables the Clock Security System 
+  */
+  HAL_RCC_EnableCSS();
 }
 
 /**
@@ -289,11 +298,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD_Power_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : UP_Pin DOWN_Pin SELECT_Pin RIGHT_Pin 
-                           LEFT_Pin */
-  GPIO_InitStruct.Pin = UP_Pin|DOWN_Pin|SELECT_Pin|RIGHT_Pin 
-                          |LEFT_Pin;
+  /*Configure GPIO pins : LEFT_Pin RIGHT_Pin */
+  GPIO_InitStruct.Pin = LEFT_Pin|RIGHT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : DOWN_Pin SELECT_Pin UP_Pin */
+  GPIO_InitStruct.Pin = DOWN_Pin|SELECT_Pin|UP_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -305,15 +318,31 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 15, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 13, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 
 /* USER CODE BEGIN 4 */
 
 void TimerCaptureCompare_Callback(void) {
+	delaytime = HAL_GetTick()-starttime;
+}
 
+void setTime(uint32_t t) {
+	starttime = t;
+}
+uint32_t getTimeDelay(void) {
+	return delaytime;
+}
+void setTemp(uint16_t t) {
+	temp = t;
 }
 
 /* USER CODE END 4 */

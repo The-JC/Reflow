@@ -25,6 +25,7 @@
 
 SSD1306 *display;
 MAX6675 *sensor;
+AnimationManager *animation;
 
 
 #endif /* MYMAIN_H_ */

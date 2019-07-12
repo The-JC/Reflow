@@ -42,10 +42,14 @@ void PIDController::set(uint16_t w) {
 /**
  * Calculates time difference from last control loop. Also sets new last control time.
  *
+ * *ToDo* handle SysTick overflows
+ * @note does not respect SysTick overflow
  * @returns dt: time difference to last control loop pass
  */
 uint32_t PIDController::calculate_dt() {
-
+	uint32_t dt = HAL_GetTick()-lastControlTime;
+	lastControlTime=HAL_GetTick();
+	return dt;
 }
 
 /**

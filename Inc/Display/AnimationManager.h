@@ -31,13 +31,34 @@ private:
 	uint16_t x;
 	uint16_t y;
 public:
+	/**
+	 * Initializes the AnimationManager
+	 *
+	 * @param *display: Display where Animation shall be played
+	 * @param *frames: @ref AnimationDef_t frames to be displayed
+	 * @param x: X location
+	 * @param y: Y location
+	 */
 	AnimationManager(SSD1306 *display, AnimationDef_t *frames, uint16_t x, uint16_t y);
+	/**
+	 * Change location for Animation
+	 *
+	 * @param x: X location
+	 * @param y: Y location
+	 */
 	void setLocation(uint16_t x, uint16_t y);
 	uint16_t getX();
 	uint16_t getY();
+	/**
+	 * Writes next Frame to RAM
+	 */
 	void nextFrame();
 	/**
-	 * *WARNING* blocks thread
+	 * Display the Animation continous
+	 *
+	 * @note *WARNING* blocks thread
+	 * @param fps: the amount of frames displayed in one second
+	 * @param duration: How long should the animation be
 	 */
 	void continous(uint8_t fps, uint16_t duration);
 };

@@ -14,6 +14,15 @@
 
 extern MAX6675 *sensor;
 
+/**
+ * Initializes the MAX6675 sensor
+ *
+ * @param *hspi: SPI used for the Sensor
+ * @param *CS1_PORT: Chip Select 1 Port
+ * @param *CS1_PORT: Chip Select 1 Pin
+ * @param *CS1_PORT: Chip Select 2 Port
+ * @param *CS1_PORT: Chip Select 2 Pin
+ */
 MAX6675::MAX6675(SPI_HandleTypeDef *hspi, GPIO_TypeDef *CS1_PORT, uint16_t CS1_Pin, GPIO_TypeDef *CS2_PORT, uint16_t CS2Pin) {
 	assert_param(hspi);
 	assert_param(CS1_PORT);
@@ -29,9 +38,20 @@ MAX6675::MAX6675(SPI_HandleTypeDef *hspi, GPIO_TypeDef *CS1_PORT, uint16_t CS1_P
 	this->temprature2 = -1;
 }
 
+/**
+ * Returns Temperature from Sensor 1
+ *
+ * @returns temperature 1
+ */
 float MAX6675::getTemprature1() {
 	return this->temprature1;
 }
+
+/**
+ * Returns Temperature from Sensor 2
+ *
+ * @returns temperature 2
+ */
 float MAX6675::getTemprature2() {
 	return this->temprature2;
 }
@@ -41,6 +61,11 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 	HAL_SPI_IRQHandler(hspi);
 }
 
+/**
+ * Handles the callback when reading the first sensor finished
+ *
+ * @param *hspi: SPI
+ */
 void MAX6675::__handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 	if(currentSensor<1 || currentSensor > 2) {
 		Error_Handler();
@@ -91,6 +116,15 @@ void MAX6675::__handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 	return;
 }
 
+/**
+ * Initializes the MAX6675 sensor
+ *
+ * @param *hspi: SPI used for the Sensor
+ * @param *CS1_PORT: Chip Select 1 Port
+ * @param *CS1_PORT: Chip Select 1 Pin
+ * @param *CS1_PORT: Chip Select 2 Port
+ * @param *CS1_PORT: Chip Select 2 Pin
+ */
 void MAX6675::readTemprature() {
 	// Check if sensor reading is in progress
 	if(currentSensor==0) {

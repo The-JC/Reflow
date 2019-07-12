@@ -24,10 +24,34 @@ private:
 	uint16_t previousError;
 	uint16_t integral;
 	uint32_t lastControlTime;
+	/**
+	 * Calculates time difference from last control loop. Also sets new last control time.
+	 *
+	 * @returns dt: time difference to last control loop pass
+	 */
 	uint32_t calculate_dt(void);
 public:
+	/**
+	 * Initialize PID controller
+	 *
+	 * @param w: Setpoint
+	 * @param Kp: Proportional gain
+	 * @param Ki: Integral gain
+	 * @param Kd: Derivative gain
+	 */
 	PIDController(uint16_t w, float Kp, float Ki, float Kd);
+	/**
+	 * Set the setpoint
+	 *
+	 * @param w: Setpoint
+	 */
 	void set(uint16_t w);
+	/**
+	 * Calculate control variable based on the process variable (output of the system)
+	 *
+	 * @param x: process variable: measured output to be compared with w
+	 * @returns control variable: Can be between 0-100 so percentage
+	 */
 	uint8_t control(uint16_t x);
 };
 

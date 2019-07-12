@@ -22,7 +22,7 @@ uint8_t power=20; //%
 char buf[16];
 
 // Private function prototypes
-void controll(void);
+void control(void);
 void updateTemprature(void);
 void updateDisplay(void);
 void boot(void);
@@ -37,12 +37,12 @@ int main(void) {
 
 	boot();
 
-	// CONTROLL LOOP
+	// CONTROL LOOP
 	while(1) {
 		updateTemprature();
 		printf(buf);
 		setTemp(sensor->getTemprature1());
-		controll();
+		control();
 		updateDisplay();
 		HAL_Delay(500);
 	}
@@ -71,8 +71,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
 	}
 }
 
-void controll(void) {
-
+void control(void) {
 	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000* controller->control(sensor->getTemprature1()/4)/100);
 }
 
@@ -80,6 +79,9 @@ void updateTemprature(void) {
 	sensor->readTemprature();
 }
 
+/**
+ * Update all display components
+ */
 void updateDisplay(void) {
 	display->fill(BLACK);
 	animation->nextFrame();
@@ -106,6 +108,9 @@ void updateDisplay(void) {
 	display->updateScreen();
 }
 
+/**
+ * Initializes all devices
+ */
 void boot(void) {
 	// Init Display
 	display = new SSD1306(&hi2c1, 0x78);
@@ -149,7 +154,6 @@ void boot(void) {
 
 	controller = new PIDController(w, kp, 0, 0);
 
-	//animation.continous(4, 10);
 	display->gotoXY(0, 50);
 }
 

@@ -16,10 +16,12 @@
 /* Absolute value */
 #define ABS(x)   ((x) > 0 ? (x) : -(x))
 
-//SSD1306::SSD1306() {
-//
-//}
-
+/**
+ * Initializes SSD1306 OLED display
+ *
+ * @param *hi2c: I2C bus used
+ * @param address: 7 bit slave address, left aligned, bits 7:1 are used, LSB bit is not used
+ */
 SSD1306::SSD1306(I2C_HandleTypeDef *hi2c, uint8_t address) {
 
 	/* Init I2C */
@@ -104,14 +106,29 @@ SSD1306::SSD1306(I2C_HandleTypeDef *hi2c, uint8_t address) {
 	return;
 }
 
+/**
+ * Shortcut for writing commands to register 0x00
+ *
+ * @param  command: Command to be send
+ */
 void SSD1306::writeCommand(uint8_t command) {
 	(*i2c).write(0x00, command);
 }
 
+/**
+ * Shortcut for writing data to register 0x40
+ *
+ * @param  data: Data to be send
+ */
 void SSD1306::writeData(uint8_t data) {
 	(*i2c).write(0x40, data);
 }
 
+/**
+ * Updates buffer from internal RAM to OLED
+ *
+ * @note   This function must be called each time you do some changes to display, to update buffer from RAM to display
+ */
 void SSD1306::updateScreen(void) {
 	uint8_t m;
 
@@ -126,6 +143,11 @@ void SSD1306::updateScreen(void) {
 	}
 }
 
+/**
+ * Toggles pixels inversion inside internal RAM
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ */
 void SSD1306::toggleInvert(void) {
 	uint16_t i;
 
@@ -138,10 +160,24 @@ void SSD1306::toggleInvert(void) {
 	}
 }
 
+/**
+ * Fills entire display with desired color
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  Color: Color to be used for screen fill. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::fill(SSD1306_COLOR_t color) {
 	memset(buffer, (color == BLACK) ? 0x00 : 0xFF, sizeof(buffer));
 }
 
+/**
+ * Draws pixel at desired location
+ *
+ * @note   @ref updateScreen() must called after that in order to see updated display screen
+ * @param  x: X location. This parameter can be a value between 0 and this width - 1
+ * @param  y: Y location. This parameter can be a value between 0 and this height - 1
+ * @param  color: Color to be used for screen fill. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawPixel(uint16_t x, uint16_t y, SSD1306_COLOR_t color) {
 	if(
 		x >= this->width ||
@@ -163,6 +199,12 @@ void SSD1306::drawPixel(uint16_t x, uint16_t y, SSD1306_COLOR_t color) {
 	}
 }
 
+/**
+ * Sets cursor pointer to desired location for strings
+ *
+ * @param  x: X location. This parameter can be a value between 0 and this width - 1
+ * @param  y: Y location. This parameter can be a value between 0 and this height - 1
+ */
 void SSD1306::gotoXY(uint16_t x, uint16_t y) {
 	/* Set write pointer */
 	currentX = x;
@@ -170,6 +212,15 @@ void SSD1306::gotoXY(uint16_t x, uint16_t y) {
 }
 
 // *ToDo* NEEDS OPTIMAZATION
+/**
+ * Draws Image to internal RAM
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  *image: Pointer to Binary Black&White Image
+ * @param  width: Width of Image
+ * @param  height: Height of Image
+ * @param  color: Color used for drawing. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawImage(uint16_t* image, uint16_t width, uint16_t height, SSD1306_COLOR_t color) {
 	uint32_t x, y, i, byte_number;
 	uint16_t b;
@@ -199,9 +250,27 @@ void SSD1306::drawImage(uint16_t* image, uint16_t width, uint16_t height, SSD130
 		}
 	}
 }
+
+/**
+ * Draws Sprite at currentPointer to internal RAM
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  *image: @ref SpriteDef_t Pointer to Sprite
+ * @param  color: Color used for drawing. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawSprite(const SpriteDef_t *image, SSD1306_COLOR_t color) {
 	drawSprite(image, color, currentX, currentY);
 }
+
+/**
+ * Draws Sprite to specific location internal RAM
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  *image: @ref SpriteDef_t Pointer to Sprite
+ * @param  color: Color used for drawing. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ * @param  xloc: X location. This parameter can be a value between 0 and this width - 1
+ * @param  yloc: Y location. This parameter can be a value between 0 and this height - 1
+ */
 void SSD1306::drawSprite(const SpriteDef_t *image, SSD1306_COLOR_t color, uint16_t xloc, uint16_t yloc) {
 	uint32_t x, y, i, byte_number;
 	uint16_t b;
@@ -232,12 +301,19 @@ void SSD1306::drawSprite(const SpriteDef_t *image, SSD1306_COLOR_t color, uint16
 	}
 }
 
-
-
+/**
+ * Puts character to internal RAM
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  ch: Character to be written
+ * @param  *Font: Pointer to @ref FontDef_t structure with used font
+ * @param  color: Color used for drawing. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ * @returns Character written
+ */
 char SSD1306::putC(char ch, FontDef_t* font, SSD1306_COLOR_t color) {
 	uint32_t y, b, x;
 
-	/* Check available space in LCD */
+	/* Check available space in display */
 	if(
 		width <= (currentX + font->FontWidth) ||
 		height <= (currentY + font->FontHeight)
@@ -266,22 +342,16 @@ char SSD1306::putC(char ch, FontDef_t* font, SSD1306_COLOR_t color) {
 
 	return ch;
 }
-char SSD1306::putS(char* str, FontDef_t* font, SSD1306_COLOR_t color, ALIGMENT_t aligment) {
-	if(aligment == VERTICAL_CENTER)
-		gotoXY(currentX, (height-font->FontHeight)/2);
-	if(aligment == HORIZONTAL_CENTER) {
-		FONTS_SIZE_t size;
-		FONTS_GetStringSize(str, &size, font);
-		gotoXY((width-size.Length)/2, currentY);
-	}
-	if(aligment == CENTER) {
-		FONTS_SIZE_t size;
-		FONTS_GetStringSize(str, &size, font);
-		gotoXY((width-size.Length)/2, (height-size.Height)/2);
-	}
 
-	return putS(str, font, color);
-}
+/**
+ * Puts string to internal RAM
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  *str: String to be written
+ * @param  *Font: Pointer to @ref FontDef_t structure with used font
+ * @param  color: Color used for drawing. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ * @returns Zero on success or character value when function failed
+ */
 char SSD1306::putS(char* str, FontDef_t* font, SSD1306_COLOR_t color) {
 	/*Write characters */
 	while(*str) {
@@ -299,6 +369,44 @@ char SSD1306::putS(char* str, FontDef_t* font, SSD1306_COLOR_t color) {
 	return *str;
 }
 
+/**
+ * Puts string with alignment to internal RAM
+ *
+ * @note   currentPosition will be (partly) ignored
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  *str: String to be written
+ * @param  *Font: Pointer to @ref FontDef_t structure with used font
+ * @param  color: Color used for drawing. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ * @param  aligment: @ref ALIGMENT_t aligment on i.e. horizontal/vertical center
+ * @returns Zero on success or character value when function failed
+ */
+char SSD1306::putS(char* str, FontDef_t* font, SSD1306_COLOR_t color, ALIGMENT_t aligment) {
+	if(aligment == VERTICAL_CENTER)
+		gotoXY(currentX, (height-font->FontHeight)/2);
+	if(aligment == HORIZONTAL_CENTER) {
+		FONTS_SIZE_t size;
+		FONTS_GetStringSize(str, &size, font);
+		gotoXY((width-size.Length)/2, currentY);
+	}
+	if(aligment == CENTER) {
+		FONTS_SIZE_t size;
+		FONTS_GetStringSize(str, &size, font);
+		gotoXY((width-size.Length)/2, (height-size.Height)/2);
+	}
+
+	return putS(str, font, color);
+}
+
+/**
+ * Draws line on display
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  x0: Line X start point. Valid input is 0 to this width - 1
+ * @param  y0: Line Y start point. Valid input is 0 to this height - 1
+ * @param  x1: Line X end point. Valid input is 0 to this width - 1
+ * @param  y1: Line Y end point. Valid input is 0 to this height - 1
+ * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SSD1306_COLOR_t color) {
 	int16_t dx, dy, sx, sy, err, e2, i, tmp;
 
@@ -369,6 +477,16 @@ void SSD1306::drawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SSD13
 	}
 }
 
+/**
+ * Draws rectangle on display
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  x: Top left X start point. Valid input is 0 to this width - 1
+ * @param  y: Top left Y start point. Valid input is 0 to this height - 1
+ * @param  w: Rectangle width in units of pixels
+ * @param  h: Rectangle height in units of pixels
+ * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color) {
 	// Check for Overflow
 	if(
@@ -393,6 +511,16 @@ void SSD1306::drawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1
 }
 
 // *TODO* POSSIBLY OPTIMIZABLE
+/**
+ * Draws filled rectangle on display
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  x: Top left X start point. Valid input is 0 to this width - 1
+ * @param  y: Top left Y start point. Valid input is 0 to this height - 1
+ * @param  w: Rectangle width in units of pixels
+ * @param  h: Rectangle height in units of pixels
+ * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t color) {
 	uint8_t i;
 
@@ -418,20 +546,58 @@ void SSD1306::drawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h
 	}
 }
 
+/**
+ * Draws triangle on display
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  x1: First coordinate X location. Valid input is 0 to this width - 1
+ * @param  y1: First coordinate Y location. Valid input is 0 to this height - 1
+ * @param  x2: Second coordinate X location. Valid input is 0 to this width - 1
+ * @param  y2: Second coordinate Y location. Valid input is 0 to this height - 1
+ * @param  x3: Third coordinate X location. Valid input is 0 to this width - 1
+ * @param  y3: Third coordinate Y location. Valid input is 0 to this height - 1
+ * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color) {
 	drawLine(x1, y1, x2, y2, color);
 	drawLine(x2, y2, x3, y3, color);
 	drawLine(x3, y3, x1, y1, color);
 }
 
+// *ToDo*
+/**
+ * Draws circle to STM buffer
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  x: X location for center of circle. Valid input is 0 to this width - 1
+ * @param  y: Y location for center of circle. Valid input is 0 to this height - 1
+ * @param  r: Circle radius in units of pixels
+ * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawCircle(uint16_t x0, uint16_t y0, uint16_t r, SSD1306_COLOR_t color) {
 
 }
 
+// *ToDo*
+/**
+ * Draws filled circle to STM buffer
+ *
+ * @note   @ref updateScreen() must be called after that in order to see updated display screen
+ * @param  x: X location for center of circle. Valid input is 0 to this width - 1
+ * @param  y: Y location for center of circle. Valid input is 0 to this height - 1
+ * @param  r: Circle radius in units of pixels
+ * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
+ */
 void SSD1306::drawFilledCircle(uint16_t x0, uint16_t y0, uint16_t r, SSD1306_COLOR_t color) {
 
 }
 
+/**
+ * Initializes SSD1306 I²C communication
+ *
+ * @param *hi2c: I2C used
+ * @param  address: 7 bit slave address, left aligned, bits 7:1 are used, LSB bit is not used
+ */
 I2C::I2C(I2C_HandleTypeDef *hi2c, uint8_t address) {
 	this->hi2c = hi2c;
 	this->address = address;
@@ -440,6 +606,12 @@ I2C::I2C(I2C_HandleTypeDef *hi2c, uint8_t address) {
 		p--;
 }
 
+/**
+ * Writes single byte to slave
+ *
+ * @param  reg: register to write to
+ * @param  data: data to be written
+ */
 void I2C::write(uint8_t reg, uint8_t data) {
 	uint8_t dt[2];
 	dt[0] = reg;
@@ -447,6 +619,13 @@ void I2C::write(uint8_t reg, uint8_t data) {
 	HAL_I2C_Master_Transmit(hi2c, address, dt, 2, 10);
 }
 
+/**
+ * Writes multi bytes to slave
+ *
+ * @param  reg: register to write to
+ * @param  *data: pointer to data array to write it to slave
+ * @param  count: how many bytes will be written
+ */
 void I2C::writeMulti(uint8_t reg, uint8_t *data, uint16_t count) {
 	uint8_t dt[count + 1];
 	dt[0] = reg;

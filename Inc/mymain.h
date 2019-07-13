@@ -17,17 +17,23 @@
 #include "stm32f1xx_hal.h"
 #include "math.h"
 
+#include "OvenHelper.h"
+
 #include "Display/SSD1306v2.h"
 #include "Display/fonts.h"
 #include "Display/Sprite.h"
 #include "Display/AnimationManager.h"
+#include "Display/MenuHelper.h"
+
 #include "Sensors/Sensor.h"
 #include "PIDController.h"
 
+OvenHelper *oven;
 SSD1306 *display;
 MAX6675 *sensor;
 AnimationManager *animation;
-PIDController *controller;
+MenuHelper *menu;
 
+PIDController *controller;
 
 #endif /* MYMAIN_H_ */

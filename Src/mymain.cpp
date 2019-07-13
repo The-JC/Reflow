@@ -15,10 +15,9 @@
 extern I2C_HandleTypeDef hi2c1;
 extern SPI_HandleTypeDef hspi2;
 
-uint16_t w = 210;
+uint16_t w = 0;
 uint16_t kp = 2;
 int trig=0;
-uint8_t power=20; //%
 char buf[16];
 
 // Private function prototypes
@@ -42,37 +41,41 @@ int main(void) {
 		updateTemprature();
 		printf(buf);
 		setTemp(sensor->getTemprature1());
-		control();
-		updateDisplay();
+		oven->loop();
+		if(!menu->isActive())
+			updateDisplay();
 		HAL_Delay(500);
 	}
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
 	// ZERO X
-	if(GPIO_PIN == ZEROX_Pin && power!=0) {
+	if(GPIO_PIN == ZEROX_Pin && oven->getPower()!=0) {
 		trig++;
 		setTime(HAL_GetTick());
 		LL_TIM_EnableCounter(TIM3);
 		return;
 	}
-		// Down
+
+	if(menu->isActive()) {
+			menu->buttonHandler(GPIO_PIN);
+			return;
+	}
+	// Down
 	if(GPIO_PIN == DOWN_Pin) {
 		if(w>0) w-=10;
 	}
 	// SELECT
 	if(GPIO_PIN == SELECT_Pin) {
-		w=0;
+		menu->setActive(1);
+		menu->showMenu();
 	}
 	// UP
 	if(GPIO_PIN == UP_Pin) {
 		w+=10;
 		if(w>250) w=250;
 	}
-}
-
-void control(void) {
-	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000* controller->control(sensor->getTemprature1()/4)/100);
+	controller->set(w);
 }
 
 void updateTemprature(void) {
@@ -102,7 +105,10 @@ void updateDisplay(void) {
 	display->putS(buf, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 
 	display->gotoXY(0, 0);
-	sprintf(buf, "%i°C %i%% %ums", w, power, getTimeDelay());
+	if(oven->getState() == STATE_REFLOW)
+		sprintf(buf, "%i°C %i%% %lums %lus", controller->get(), oven->getPower(), getTimeDelay(), oven->getProfCon()->getTimePassed()/1000);
+	else
+		sprintf(buf, "%i°C %i%% %lums", controller->get(), oven->getPower(), getTimeDelay());
 	display->putS(buf, &Font_7x10, WHITE, ABSOLUT);
 
 	display->updateScreen();
@@ -150,10 +156,16 @@ void boot(void) {
 	/* Force update generation */
 	LL_TIM_GenerateEvent_UPDATE(TIM3);
 
-	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000*power/100);
+	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000*0/100);
 
 	controller = new PIDController(w, kp, 0, 0);
 
 	display->gotoXY(0, 50);
+
+	oven = new OvenHelper(controller, sensor);
+
+	menu = new MenuHelper(oven, display);
+
+	menu->showMenu();
 }
 

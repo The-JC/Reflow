@@ -163,6 +163,18 @@ public:
 	 * Sets cursor pointer to desired location for strings
 	 *
 	 * @param  x: X location. This parameter can be a value between 0 and this width - 1
+	 */
+	void gotoX(uint16_t x);
+	/**
+	 * Sets cursor pointer to desired location for strings
+	 *
+	 * @param  y: Y location. This parameter can be a value between 0 and this height - 1
+	 */
+	void gotoY(uint16_t y);
+	/**
+	 * Sets cursor pointer to desired location for strings
+	 *
+	 * @param  x: X location. This parameter can be a value between 0 and this width - 1
 	 * @param  y: Y location. This parameter can be a value between 0 and this height - 1
 	 */
 	void gotoXY(uint16_t x, uint16_t y);

@@ -46,6 +46,11 @@ public:
 	 * @param w: Setpoint
 	 */
 	void set(uint16_t w);
+	/** Gets the setpoint
+	 *
+	 * @returns the setpoint w
+	 */
+	uint16_t get(void);
 	/**
 	 * Calculate control variable based on the process variable (output of the system)
 	 *

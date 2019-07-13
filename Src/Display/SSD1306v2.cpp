@@ -203,6 +203,24 @@ void SSD1306::drawPixel(uint16_t x, uint16_t y, SSD1306_COLOR_t color) {
  * Sets cursor pointer to desired location for strings
  *
  * @param  x: X location. This parameter can be a value between 0 and this width - 1
+ */
+void SSD1306::gotoX(uint16_t x) {
+	/* Set write pointer */
+	currentX = x;
+}
+/**
+ * Sets cursor pointer to desired location for strings
+ *
+ * @param  y: Y location. This parameter can be a value between 0 and this height - 1
+ */
+void SSD1306::gotoY(uint16_t y) {
+	/* Set write pointer */
+	currentY = y;
+}
+/**
+ * Sets cursor pointer to desired location for strings
+ *
+ * @param  x: X location. This parameter can be a value between 0 and this width - 1
  * @param  y: Y location. This parameter can be a value between 0 and this height - 1
  */
 void SSD1306::gotoXY(uint16_t x, uint16_t y) {

@@ -38,6 +38,13 @@ PIDController::PIDController(uint16_t w, float Kp, float Ki, float Kd) {
 void PIDController::set(uint16_t w) {
 	this->w = w;
 }
+/** Gets the setpoint
+ *
+ * @returns the setpoint w
+ */
+uint16_t PIDController::get() {
+	return this->w;
+}
 
 /**
  * Calculates time difference from last control loop. Also sets new last control time.

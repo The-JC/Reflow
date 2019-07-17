@@ -48,14 +48,48 @@ private:
 	PAGE_t activePage;
 	uint8_t activeElement;
 	MODE_t mode;
+	/**
+	 * Internal function to draw the Mode Selection to RAM
+	 */
 	void drawMode(void);
+	/**
+	 * Internal function to draw the Curve Selection to RAM
+	 */
 	void drawCurves(void);
 public:
+	/**
+	 * Initialize the MenuHelper
+	 *
+	 * @param *oven: Oven for displaying and controlling purposes
+	 * @param *display: to show menu on
+	 */
 	MenuHelper(OvenHelper *oven, SSD1306 *display);
+	/**
+	 * Returns wheter Menu is active or not
+	 *
+	 * @returns state of menu
+	 */
 	uint8_t isActive(void);
+	/**
+	 * Sets menu active or not
+	 *
+	 * @param active: boolean active or not
+	 */
 	void setActive(uint8_t active);
+	/** Returns current mode
+	 *
+	 * @return @ref MODE_t
+	 */
 	MODE_t getMode(void);
+	/**
+	 * Function to draw Menu to RAM
+	 */
 	void showMenu(void);
+	/**
+	 * Function to handle button pushes on interrupts
+	 *
+	 * @param GPIO_PIN: GPIO pin with interrupt
+	 */
 	void buttonHandler(uint16_t GPIO_PIN);
 
 };

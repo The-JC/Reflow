@@ -30,14 +30,51 @@ private:
 	uint8_t power;
 	ProfileController *profcon;
 public:
+	/**
+	 * Initialize OvenHelper
+	 *
+	 * @param *pid: PID Controller for the Oven
+	 * @param *sensor: MAX6675 sensor for controll
+	 */
 	OvenHelper(PIDController *pid, MAX6675 *sensor);
-	STATE_t getState(void);
+	/** Gets the current ProfileController
+	 *
+	 * @returns the current ProfCon
+	 */
 	ProfileController* getProfCon(void);
+	/**
+	 * Returns the current state of the Oven i.e. Off, Bake or Reflow
+	 *
+	 * @returns @ref STATE_t state of oven
+	 */
+	STATE_t getState(void);
+	/** Gets current power setting
+	 *
+	 * @returns the current power setting y
+	 */
 	uint8_t getPower(void);
+	/** Sets the power setting
+	 *
+	 * @param new power setting in percent
+	 */
 	void setPower(uint8_t power);
+	/**
+	 * Start to reflow with a profile
+	 *
+	 * @param *profile: Temprature profile to be reflowed with
+	 */
 	void startReflow(CURVE_t *profile);
+	/**
+	 * Start the Oven in Baking mode
+	 */
 	void startBaking();
+	/**
+	 * Power off the oven
+	 */
 	void switchOff();
+	/**
+	 * Main loop needed to be called to regulate the oven
+	 */
 	void loop();
 };
 

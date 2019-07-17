@@ -30,40 +30,51 @@ CURVE_t advanced = {
 
 CURVE_t curves[curveslen] = {basic, advanced };
 
+/**
+ * Initializes the Profile Controller when using Temprature Curves as operting mode
+ *
+ * @param *pid: @ref PIDController controller for setting temprature
+ * @param *profile: The profile that should be followed
+ */
 ProfileController::ProfileController(PIDController *pid, CURVE_t *profile) {
 	this->pid = pid;
 	this->profile = profile;
 	this->starttime = HAL_GetTick();
+	this->indexstarttime =0;
+	this->index=0;
 	this->finished = 0;
 }
 
+/**
+ * Calculates time since start
+ *
+ * @returns time since start of profile (init)
+ */
 uint32_t ProfileController::getTimePassed() {
 	return HAL_GetTick()-this->starttime;
 }
 
+/**
+ * Function that sets temprature at certain time
+ *
+ * @note needs to be called in main loop to operate
+ * @param x: current temprature
+ * @returns 0 or 1 - 1 for finished 0 for ongoing
+ */
 uint8_t ProfileController::control(uint16_t x) {
-	uint8_t i=0;
-	uint32_t t=0;
-	// Calculate where we are on graph
-	while(t<HAL_GetTick()-starttime) {
-		t+=(profile->points)[0][i].time*1000;
-		i++;
-	}
-	i--;
+	pid->set((profile->points)[0][index].temprature);
 
-	// Calculate total time
-	t=0;
-	for(int j=0; j<profile->pointslen; j++) {
-		t+=(profile->points)[0][j].time;
+	if(pid->reachedTemprature(x) && this->indexstarttime==0) {
+		indexstarttime=HAL_GetTick();
 	}
-	if(HAL_GetTick()-starttime > t*1000) {
-		/* Finished */
+	if(HAL_GetTick() > indexstarttime + (profile->points)[0][index].time*1000 && indexstarttime!=0) {
+		indexstarttime=0;
+		index++;
+	}
+	if(index >= profile->pointslen) {
 		this->finished = 1;
 		pid->set(0);
 		return 1;
 	}
-
-	pid->set((profile->points)[0][i].temprature);
-
 	return 0;
 }

@@ -12,6 +12,8 @@
 
 #include <PIDController.h>
 
+#define TOLERANCE 5
+
 /**
  * Initialize PID controller
  *
@@ -47,6 +49,20 @@ uint16_t PIDController::get() {
 }
 
 /**
+ * Calculate whether temprature has reached setpoint wihtin a margin
+ *
+ * @param x: process variable: measured output
+ * @returns  boolean: temprature reached
+ */
+uint8_t PIDController::reachedTemprature(uint16_t x) {
+	if(x < w+TOLERANCE && x > w-TOLERANCE) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+/**
  * Calculates time difference from last control loop. Also sets new last control time.
  *
  * *ToDo* handle SysTick overflows
@@ -66,15 +82,19 @@ uint32_t PIDController::calculate_dt() {
  * @returns control variable: Can be between 0-100 so percentage
  */
 uint8_t PIDController::control(uint16_t x) {
-	uint16_t derivative, output;
-	uint16_t e = this->w-x;
-	uint32_t dt = this->calculate_dt();
+	int output;
+	int e = this->w-x;
+	dt= this->calculate_dt();
+	uint16_t maxI=100;
 
 	// Calculate the integral part of the PID controller
-	this->integral += e*dt;
+	this->integral += e*dt/1000;
+
+	if(integral>maxI)integral=maxI;
+	if(integral<-maxI) integral=-maxI;
 
 	// Calculate the derivative part of the PID controller
-	derivative = (e - this->previousError) / dt;
+	derivative = (e - this->previousError)*1000 / dt;
 
 	// Set previous error to this error
 	previousError = e;

@@ -36,6 +36,8 @@ private:
 	PIDController *pid;
 	CURVE_t *profile;
 	uint32_t starttime;
+	uint32_t indexstarttime;
+	uint8_t index;
 	uint8_t finished;
 public:
 	/**
@@ -45,6 +47,11 @@ public:
 	 * @param *profile: The profile that should be followed
 	 */
 	ProfileController(PIDController *pid, CURVE_t *profile);
+	/**
+	 * Calculates time since start
+	 *
+	 * @returns time since start of profile (init)
+	 */
 	uint32_t getTimePassed();
 	/**
 	 * Function that sets temprature at certain time

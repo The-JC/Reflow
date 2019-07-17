@@ -16,7 +16,10 @@ extern I2C_HandleTypeDef hi2c1;
 extern SPI_HandleTypeDef hspi2;
 
 uint16_t w = 0;
-uint16_t kp = 2;
+float kp = 1.8;
+float ki = 0.25;
+float kd = 25;
+uint8_t power =0;
 int trig=0;
 char buf[16];
 
@@ -42,6 +45,7 @@ int main(void) {
 		printf(buf);
 		setTemp(sensor->getTemprature1());
 		oven->loop();
+		power = oven->getPower();
 		if(!menu->isActive())
 			updateDisplay();
 		HAL_Delay(500);
@@ -50,7 +54,8 @@ int main(void) {
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
 	// ZERO X
-	if(GPIO_PIN == ZEROX_Pin && oven->getPower()!=0) {
+	if(GPIO_PIN == ZEROX_Pin) {
+		if(oven->getPower()==0) return;
 		trig++;
 		setTime(HAL_GetTick());
 		LL_TIM_EnableCounter(TIM3);
@@ -61,6 +66,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
 			menu->buttonHandler(GPIO_PIN);
 			return;
 	}
+	if(oven->getState()==STATE_REFLOW) return;
 	// Down
 	if(GPIO_PIN == DOWN_Pin) {
 		if(w>0) w-=10;
@@ -158,7 +164,7 @@ void boot(void) {
 
 	LL_TIM_OC_SetCompareCH1(TIM3, 60000 - 60000*0/100);
 
-	controller = new PIDController(w, kp, 0, 0);
+	controller = new PIDController(w, kp, ki, kd);
 
 	display->gotoXY(0, 50);
 

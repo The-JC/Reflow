@@ -21,8 +21,10 @@ private:
 	float Kp;
 	float Ki;
 	float Kd;
-	uint16_t previousError;
-	uint16_t integral;
+	int previousError;
+	int integral;
+	float derivative;
+	float dt;
 	uint32_t lastControlTime;
 	/**
 	 * Calculates time difference from last control loop. Also sets new last control time.
@@ -51,6 +53,13 @@ public:
 	 * @returns the setpoint w
 	 */
 	uint16_t get(void);
+	/**
+	 * Calculate whether temprature has reached setpoint wihtin a margin
+	 *
+	 * @param x: process variable: measured output
+	 * @returns  boolean: temprature reached
+	 */
+	uint8_t reachedTemprature(uint16_t x);
 	/**
 	 * Calculate control variable based on the process variable (output of the system)
 	 *

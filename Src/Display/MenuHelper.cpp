@@ -15,6 +15,86 @@
 #define MODE_OFFSET 15
 #define CURVE_OFFSET 15
 
+static void Menu_RunBake();
+static void Menu_RunReflow();
+
+uint32_t blabla = 435;
+
+static const struct menuitem_t programmMenu[] = {
+		{
+				.text = "Programms",
+				.type = MENU_LABEL_INV,
+				.callback = 0,
+				{
+						.num = 3,
+				},
+		},
+		{
+				.text = "Bake",
+				.type = MENU_EXEC,
+				.callback = Menu_RunBake,
+		},
+		{
+				.text = "Reflow",
+				.type = MENU_EXEC,
+				.callback = Menu_RunReflow,
+		},
+};
+
+static const struct menuitem_t settingsMenu[] = {
+		{
+				.text = "Settings",
+				.type = MENU_LABEL_INV,
+				.callback = 0,
+				{
+						.num = 2
+				},
+		},
+		{
+				.text = "P",
+				.type = MENU_VAL,
+				.callback = 0,
+				{
+						.val = &blabla,
+				},
+		}
+};
+
+static const struct menuitem_t mainMenu[] = {
+		{
+				.text = "Main Menu",
+				.type = MENU_LABEL_INV,
+				.callback = 0,
+				{
+						.num = 4,
+				},
+		},
+		{
+				.text = "Programms",
+				.type = MENU_SUB,
+				.callback = 0,
+				{
+						.sub_menu = programmMenu,
+				},
+		},
+		{
+				.text = "Settings",
+				.type = MENU_SUB,
+				.callback = 0,
+				{
+						.sub_menu = settingsMenu,
+				},
+		},
+		{
+				.text = "change val",
+				.type = MENU_VAL,
+				.callback = 0,
+				{
+						.val = &blabla,
+				},
+		},
+};
+
 MODE_t Bake = {
 		0,
 		"Bake"
@@ -40,6 +120,10 @@ MenuHelper::MenuHelper(OvenHelper *oven, SSD1306 *display) {
 	this->active = 1;
 	this->activePage = MODE_SELECTION;
 	this->activeElement = 0;
+
+	this->menuDepth = 0;
+	this->menuPosStack[menuDepth] = 1;
+	this->menuItemStack[menuDepth] = mainMenu;
 }
 
 /**
@@ -72,20 +156,64 @@ MODE_t MenuHelper::getMode() {
  * Function to draw Menu to RAM
  */
 void MenuHelper::showMenu() {
+	draw();
+//	display->fill(BLACK);
+//
+//	display->drawFilledRectangle(0, 0, 127, 10, WHITE);
+//	display->gotoXY(0, 1);
+//	if(this->activePage == MODE_SELECTION) {
+//		display->putS("Mode", &Font_7x10, BLACK, HORIZONTAL_CENTER);
+//
+//		drawMode();
+//	} else if(this->activePage == CURVE_SELECTION) {
+//		display->putS("Curves", &Font_7x10, BLACK, HORIZONTAL_CENTER);
+//
+//		drawCurves();
+//	}
+	display->updateScreen();
+}
+
+void MenuHelper::draw() {
+	uint8_t menuPos;
+	uint8_t drawPos;
+	const struct menuitem_t *menu;
+
+	uint8_t i;
+
+	menuPos = this->menuPosStack[this->menuDepth];
+	menu = this->menuItemStack[this->menuDepth];
+
 	display->fill(BLACK);
 
-	display->drawFilledRectangle(0, 0, 127, 10, WHITE);
-	display->gotoXY(0, 1);
-	if(this->activePage == MODE_SELECTION) {
-		display->putS("Mode", &Font_7x10, BLACK, HORIZONTAL_CENTER);
-
-		drawMode();
-	} else if(this->activePage == CURVE_SELECTION) {
-		display->putS("Curves", &Font_7x10, BLACK, HORIZONTAL_CENTER);
-
-		drawCurves();
+	if(menuPos < 2) {
+		drawPos=0;
+	} else {
+		drawPos = menuPos-2;
 	}
-	display->updateScreen();
+
+	if(menuPos > menu[0].num - 3) {
+		drawPos = (menu[0].num > 5) ? (menu[0].num - 5) : 0;
+	}
+
+	for(i = 0; i < 5; i++) {
+		SSD1306_COLOR_t inv;
+		if(drawPos+i >= menu[0].num) break;
+		inv = (menu[drawPos+i].type == MENU_LABEL_INV) ? BLACK:WHITE;
+
+		if(!inv) {
+			display->drawFilledRectangle(0, 12*i, 127, 10, WHITE);
+		}
+		display->gotoX(5);
+		display->gotoY(12*i);
+		display->putS(menu[drawPos+i].text, &Font_7x10, inv);
+	}
+
+	display->gotoY(12*5);
+	display->putS("OK", &Font_7x10, WHITE, CENTER);
+	if(menu != mainMenu) {
+		display->gotoX(5);
+		display->putS("<-", &Font_7x10, WHITE);
+	}
 }
 
 /**
@@ -188,5 +316,13 @@ void MenuHelper::buttonHandler(uint16_t GPIO_PIN) {
 		}
 	}
 	this->showMenu();
+}
+
+static void Menu_RunBake() {
+
+}
+
+static void Menu_RunReflow() {
+
 }
 

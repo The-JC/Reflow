@@ -19,26 +19,40 @@
 #include "Display/fonts.h"
 #include "ProfileController.h"
 
+#define MENU_MAX_DEPTH 3
+
 typedef struct {
 	uint8_t id;
 	char* name;
 } MODE_t;
 
-//extern MODE_t Bake;
-//extern MODE_t Reflow;
-
-//CURVE_t *createCurve(CURVE_t *c, uint8_t id, char* name, DATAPOINT_t points[]) {
-//	c = malloc(sizeof(*c) + sizeof(points));
-//
-//	c->id = id;
-//	memcpy(c->points, points, sizeof(points));
-//}
-
 typedef enum {
 	MODE_NONE,
 	MODE_SELECTION,
-	CURVE_SELECTION
+	CURVE_SELECTION,
+	SETTINGS,
+	SETTING
 } PAGE_t;
+
+enum {
+	MENU_LAST=0,
+	MENU_LABEL,
+	MENU_LABEL_INV,
+	MENU_SUB,
+	MENU_EXEC,
+	MENU_VAL,
+};
+
+struct menuitem_t {
+	char* text;
+	uint8_t type;
+	void (*callback)(void);
+	union {
+		const struct menuitem_t* sub_menu;
+		uint32_t *val;
+		const uint32_t num; /* first label contains number of items :) */
+	};
+};
 
 class MenuHelper {
 private:
@@ -48,6 +62,11 @@ private:
 	PAGE_t activePage;
 	uint8_t activeElement;
 	MODE_t mode;
+	////
+	const struct menuitem_t *menuItemStack[MENU_MAX_DEPTH];
+	uint8_t menuPosStack[MENU_MAX_DEPTH];
+	uint8_t menuDepth;
+	////
 	/**
 	 * Internal function to draw the Mode Selection to RAM
 	 */
@@ -56,6 +75,10 @@ private:
 	 * Internal function to draw the Curve Selection to RAM
 	 */
 	void drawCurves(void);
+	/**
+	 * Internal function to draw Settings Menu to RAM
+	 */
+	void drawSettings(void);
 public:
 	/**
 	 * Initialize the MenuHelper
@@ -91,6 +114,7 @@ public:
 	 * @param GPIO_PIN: GPIO pin with interrupt
 	 */
 	void buttonHandler(uint16_t GPIO_PIN);
+	void draw();
 
 };
 

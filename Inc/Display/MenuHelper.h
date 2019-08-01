@@ -19,25 +19,11 @@
 #include "Display/fonts.h"
 #include "ProfileController.h"
 
+#define MAX_MENU_CONTENTS 10
 #define MENU_MAX_DEPTH 3
-
-typedef struct {
-	uint8_t id;
-	char* name;
-} MODE_t;
-
-typedef enum {
-	MODE_NONE,
-	MODE_SELECTION,
-	CURVE_SELECTION,
-	SETTINGS,
-	SETTING
-} PAGE_t;
 
 enum {
 	MENU_LAST=0,
-	MENU_LABEL,
-	MENU_LABEL_INV,
 	MENU_SUB,
 	MENU_EXEC,
 	MENU_VAL,
@@ -48,10 +34,16 @@ struct menuitem_t {
 	uint8_t type;
 	void (*callback)(void);
 	union {
-		const struct menuitem_t* sub_menu;
+		const struct menu_t* sub_menu;
 		uint32_t *val;
 		const uint32_t num; /* first label contains number of items :) */
 	};
+};
+
+struct menu_t {
+	char* name;
+	const uint32_t num;
+	const struct menuitem_t contents[MAX_MENU_CONTENTS];
 };
 
 class MenuHelper {
@@ -59,26 +51,17 @@ private:
 	OvenHelper *oven;
 	SSD1306 *display;
 	uint8_t active;
-	PAGE_t activePage;
-	uint8_t activeElement;
-	MODE_t mode;
-	////
-	const struct menuitem_t *menuItemStack[MENU_MAX_DEPTH];
+	const struct menu_t *menuStack[MENU_MAX_DEPTH];
 	uint8_t menuPosStack[MENU_MAX_DEPTH];
 	uint8_t menuDepth;
-	////
 	/**
-	 * Internal function to draw the Mode Selection to RAM
+	 * Internal function for menu interaction
 	 */
-	void drawMode(void);
+	void menuAction(void);
 	/**
-	 * Internal function to draw the Curve Selection to RAM
-	 */
-	void drawCurves(void);
-	/**
-	 * Internal function to draw Settings Menu to RAM
-	 */
-	void drawSettings(void);
+	* Internal function for changing values
+	*/
+	void valChanger(uint32_t *ptr);
 public:
 	/**
 	 * Initialize the MenuHelper
@@ -99,13 +82,8 @@ public:
 	 * @param active: boolean active or not
 	 */
 	void setActive(uint8_t active);
-	/** Returns current mode
-	 *
-	 * @return @ref MODE_t
-	 */
-	MODE_t getMode(void);
 	/**
-	 * Function to draw Menu to RAM
+	 * Function to draw Menu and shows it
 	 */
 	void showMenu(void);
 	/**
@@ -114,6 +92,9 @@ public:
 	 * @param GPIO_PIN: GPIO pin with interrupt
 	 */
 	void buttonHandler(uint16_t GPIO_PIN);
+	/**
+	 * Function that draws menu
+	 */
 	void draw();
 
 };

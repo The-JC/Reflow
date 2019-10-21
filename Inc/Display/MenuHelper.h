@@ -29,6 +29,11 @@ enum {
 	MENU_VAL,
 };
 
+enum {
+	MENU_MODE_SCROLL=0,
+	MENU_MODE_VAL,
+};
+
 struct menuitem_t {
 	char* text;
 	uint8_t type;
@@ -51,6 +56,7 @@ private:
 	OvenHelper *oven;
 	SSD1306 *display;
 	uint8_t active;
+	uint8_t activeMode;
 	const struct menu_t *menuStack[MENU_MAX_DEPTH];
 	uint8_t menuPosStack[MENU_MAX_DEPTH];
 	uint8_t menuDepth;
@@ -60,8 +66,11 @@ private:
 	void menuAction(void);
 	/**
 	* Internal function for changing values
+	*
+	* @param *ptr: value to change
+	* @param value: increasing value
 	*/
-	void valChanger(uint32_t *ptr);
+	void valChanger(uint32_t *ptr, int8_t value);
 public:
 	/**
 	 * Initialize the MenuHelper
@@ -82,6 +91,15 @@ public:
 	 * @param active: boolean active or not
 	 */
 	void setActive(uint8_t active);
+	/**
+	 * Returns the current mode
+	 * Modes:
+	 * 	- Scrolling
+	 * 	- Value changer
+	 *
+	 * 	@returns mode of menu
+	 */
+	uint8_t getMode(void);
 	/**
 	 * Function to draw Menu and shows it
 	 */

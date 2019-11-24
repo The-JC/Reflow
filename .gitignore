@@ -54,6 +54,9 @@ dkms.conf
 #Debug
 ./Debug/
 
+#Release
+Release/
+
 #IDEs
 .settings/
 .project
